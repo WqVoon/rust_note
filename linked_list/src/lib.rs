@@ -2,6 +2,7 @@
 
 #[macro_use]
 pub mod first;
+pub mod second;
 
 #[cfg(test)]
 mod test_first {
@@ -53,5 +54,106 @@ mod test_first {
         assert!("[null]" == format!("{lst}"));
         lst.pop();
         assert!("[null]" == format!("{lst}"));
+    }
+}
+
+#[cfg(test)]
+mod test_second {
+    use super::second;
+
+    /// 测试 second 的基本功能
+    #[test]
+    fn basic() {
+        let mut lst = second::List::<u32>::new();
+        assert!(lst.pop() == None);
+
+        lst.push(1);
+        lst.push(2);
+        lst.push(3);
+
+        assert!(lst.pop() == Some(3));
+        assert!(lst.pop() == Some(2));
+        assert!(lst.pop() == Some(1));
+        assert!(lst.pop() == None);
+    }
+
+    /// 测试 second 的 peek
+    #[test]
+    fn peek() {
+        let mut lst = second::List::<u32>::new();
+        assert!(lst.peek() == None);
+
+        lst.push(1);
+        assert!(lst.peek() == Some(&1));
+        assert!(lst.peek_mut() == Some(&mut 1));
+
+        lst.peek_mut().map(|x| {
+            *x += 1;
+        });
+        assert!(lst.peek() == Some(&2))
+    }
+
+    /// 测试 into_iter 方法
+    #[test]
+    fn into_iter() {
+        let mut lst = second::List::<u32>::new();
+        lst.push(1);
+        lst.push(2);
+        lst.push(3);
+
+        let mut iter = lst.into_iter();
+        assert!(iter.next() == Some(3));
+        assert!(iter.next() == Some(2));
+        assert!(iter.next() == Some(1));
+        assert!(iter.next() == None);
+    }
+
+    /// 测试 iter 方法
+    #[test]
+    fn iter() {
+        let mut lst = second::List::<u32>::new();
+        lst.push(1);
+        lst.push(2);
+        lst.push(3);
+
+        let mut iter = lst.iter();
+        assert!(iter.next() == Some(&3));
+        assert!(iter.next() == Some(&2));
+        assert!(iter.next() == Some(&1));
+        assert!(iter.next() == None);
+
+        // lst 应该是可重复消费的
+        let mut iter = lst.iter();
+        assert!(iter.next() == Some(&3));
+        assert!(iter.next() == Some(&2));
+        assert!(iter.next() == Some(&1));
+        assert!(iter.next() == None);
+    }
+
+    /// 测试 iter_mut 方法
+    #[test]
+    fn iter_mut() {
+        let mut lst = second::List::<u32>::new();
+        lst.push(1);
+        lst.push(2);
+        lst.push(3);
+
+        let mut iter = lst.iter_mut();
+        assert!(iter.next() == Some(&mut 3));
+        assert!(iter.next() == Some(&mut 2));
+        assert!(iter.next() == Some(&mut 1));
+        assert!(iter.next() == None);
+
+        // lst 应该是可重复消费的
+        let mut iter = lst.iter_mut();
+        assert!(iter.next() == Some(&mut 3));
+        assert!(iter.next() == Some(&mut 2));
+        assert!(iter.next() == Some(&mut 1));
+        assert!(iter.next() == None);
+
+        for v in lst.iter_mut() {
+            *v *= 10;
+        }
+        assert!("[30 -> 20 -> 10 -> null]" == format!("{lst}"))
     }
 }
