@@ -3,6 +3,7 @@
 #[macro_use]
 pub mod first;
 pub mod second;
+pub mod third;
 
 #[cfg(test)]
 mod test_first {
@@ -26,7 +27,7 @@ mod test_first {
 
     /// 测试长链表的 drop 是否会导致栈溢出
     #[test]
-    fn long_first() {
+    fn long_list() {
         let mut lst = first::List::<u32>::new();
         for i in 0..100000 {
             lst.push(i);
@@ -155,5 +156,40 @@ mod test_second {
             *v *= 10;
         }
         assert!("[30 -> 20 -> 10 -> null]" == format!("{lst}"))
+    }
+}
+
+#[cfg(test)]
+mod test_third {
+    use super::third;
+
+    #[test]
+    fn basic() {
+        let list = third::List::new();
+        assert_eq!(list.head(), None);
+
+        let list = list.prepend(1).prepend(2).prepend(3);
+        assert_eq!(list.head(), Some(&3));
+
+        let list = list.tail();
+        assert_eq!(list.head(), Some(&2));
+
+        let list = list.tail();
+        assert_eq!(list.head(), Some(&1));
+
+        let list = list.tail();
+        assert_eq!(list.head(), None);
+
+        let list = list.tail();
+        assert_eq!(list.head(), None);
+    }
+
+    /// 测试长链表的 drop 是否会导致栈溢出
+    #[test]
+    fn long_list() {
+        let mut lst = third::List::<u32>::new();
+        for i in 0..100000 {
+            lst = lst.prepend(i);
+        }
     }
 }
