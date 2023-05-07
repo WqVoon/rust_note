@@ -2,6 +2,7 @@
 
 #[macro_use]
 pub mod first;
+pub mod fourth;
 pub mod second;
 pub mod third;
 
@@ -191,5 +192,33 @@ mod test_third {
         for i in 0..100000 {
             lst = lst.prepend(i);
         }
+    }
+}
+
+#[cfg(test)]
+mod test_fourth {
+    use super::fourth;
+
+    #[test]
+    fn basic() {
+        let mut lst = fourth::List::<u32>::new();
+        assert_eq!(lst.pop(), None);
+
+        lst.push(1);
+        lst.push(2);
+        lst.push(3);
+        assert_eq!(lst.peek(), Some(&1));
+        assert_eq!(lst.pop(), Some(1));
+        assert_eq!(lst.peek(), Some(&2));
+        assert_eq!(lst.pop(), Some(2));
+        assert_eq!(lst.peek(), Some(&3));
+        assert_eq!(lst.pop(), Some(3));
+        assert_eq!(lst.peek(), None);
+        assert_eq!(lst.pop(), None);
+
+        lst.push(1);
+        *lst.peek_mut().unwrap() += 10;
+        assert_eq!(lst.pop(), Some(11));
+        assert_eq!(lst.pop(), None);
     }
 }
