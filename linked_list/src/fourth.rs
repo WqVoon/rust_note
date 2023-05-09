@@ -63,3 +63,75 @@ impl<T> Drop for List<T> {
         while let Some(_) = self.pop() {}
     }
 }
+
+pub struct IntoIter<T>(List<T>);
+
+pub struct Iter<'a, T> {
+    _dummy: std::marker::PhantomData<&'a T>,
+    next: *mut Node<T>,
+}
+
+pub struct IterMut<'a, T> {
+    _dummy: std::marker::PhantomData<&'a T>,
+    next: *mut Node<T>,
+}
+
+impl<T> List<T> {
+    pub fn into_iter(self) -> IntoIter<T> {
+        IntoIter(self)
+    }
+
+    pub fn iter(&self) -> Iter<T> {
+        Iter {
+            _dummy: std::marker::PhantomData,
+            next: self.head,
+        }
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<T> {
+        IterMut {
+            _dummy: std::marker::PhantomData,
+            next: self.head,
+        }
+    }
+}
+
+impl<T> Iterator for IntoIter<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.pop()
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unsafe {
+            let old_next = self.next;
+            if old_next.is_null() {
+                return None;
+            }
+
+            self.next = (*old_next).next;
+            Some(&(*old_next).elem)
+        }
+    }
+}
+
+impl<'a, T> Iterator for IterMut<'a, T> {
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unsafe {
+            let old_next = self.next;
+            if old_next.is_null() {
+                return None;
+            }
+
+            self.next = (*old_next).next;
+            Some(&mut (*old_next).elem)
+        }
+    }
+}
